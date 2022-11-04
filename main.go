@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var clientDB *mongo.Database
+var tasksDB *mongo.Database
 var collection *mongo.Collection
 var ctx = context.TODO()
 
@@ -22,28 +23,32 @@ type Task struct {
 	Completed bool               `bson:"completed"`
 }
 
-func init() {
+func prepareDB() *mongo.Database {
+	if tasksDB != nil {
+		fmt.Println("DB already connected")
+		return tasksDB
+	}
+
 	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		if err = client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	clientDB = client.Database("tasker")
-	collection = clientDB.Collection("tasks")
+	tasksDB = client.Database("tasker")
+
+	return tasksDB
 }
 
 func main() {
+	tasksDB := prepareDB()
+	collection = tasksDB.Collection("tasks")
+
 	task := &Task{
 		ID:        primitive.NewObjectID(),
 		CreatedAt: time.Now(),
