@@ -29,7 +29,8 @@ func prepareDB() *mongo.Database {
 		return tasksDB
 	}
 
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+	// clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/")
+	clientOptions := options.Client().ApplyURI("mongodb+srv://doadmin:hj71C2G6KU8Ic035@db-mongodb-nyc1-15586-ea693f9c.mongo.ondigitalocean.com")
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal(err)
